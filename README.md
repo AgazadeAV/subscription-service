@@ -148,5 +148,8 @@ mvn liquibase:update
 
 ## 👤 Автор
 
-Разработано с ❤️ разработчиком [**@AgazadeAV**](https://github.com/AgazadeAV) — Java Backend Developer
+Разработано с ❤️ разработчиком **Агазаде Азером** — Java Backend Developer
+
+🐱‍ Github: [@AgazadeAV](https://github.com/AgazadeAV)
+
 📫 Telegram: [@azer\_aghazadeh](https://t.me/azer_aghazadeh)
