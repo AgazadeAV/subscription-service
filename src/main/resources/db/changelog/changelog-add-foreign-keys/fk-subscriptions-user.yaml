@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-fk-subscriptions-user
+      author: azer agazade
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: subscriptions
+            baseColumnNames: user_id
+            constraintName: fk_subscriptions_user
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
