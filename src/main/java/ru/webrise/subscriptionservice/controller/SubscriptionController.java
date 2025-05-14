@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.webrise.subscriptionservice.dto.CreateSubscriptionRequest;
 import ru.webrise.subscriptionservice.dto.SubscriptionDto;
+import ru.webrise.subscriptionservice.dto.TopSubscriptionDto;
 import ru.webrise.subscriptionservice.service.SubscriptionService;
 import ru.webrise.subscriptionservice.swagger.SubscriptionApiSpec;
 
@@ -43,7 +44,7 @@ public class SubscriptionController implements SubscriptionApiSpec {
     }
 
     @DeleteMapping("/users/{userId}/subscriptions/{subscriptionId}")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<Void> deleteSubscription(
             @PathVariable(name = "userId") UUID userId,
             @PathVariable(name = "subscriptionId") UUID subscriptionId) {
         log.info("Получен запрос на удаление подписки {} пользователя {}", subscriptionId, userId);
@@ -52,7 +53,7 @@ public class SubscriptionController implements SubscriptionApiSpec {
     }
 
     @GetMapping("/subscriptions/top")
-    public ResponseEntity<List<SubscriptionDto>> getTopSubscriptions() {
+    public ResponseEntity<List<TopSubscriptionDto>> getTopSubscriptions() {
         log.info("Получен запрос на получение топовых подписок");
         return ResponseEntity.ok(subscriptionService.getTopSubscriptions());
     }

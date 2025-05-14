@@ -6,11 +6,11 @@ import ru.webrise.subscriptionservice.dto.UserDto;
 import java.util.UUID;
 
 public interface UserService {
-    UserDto create(CreateUserRequest request);
+    UserDto createUser(CreateUserRequest request);
 
-    UserDto getById(UUID id);
+    UserDto getUserById(UUID id);
 
-    UserDto update(UUID id, CreateUserRequest request);
+    UserDto updateUser(UUID id, CreateUserRequest request);
 
-    void delete(UUID id);
+    void deleteUser(UUID id);
 }

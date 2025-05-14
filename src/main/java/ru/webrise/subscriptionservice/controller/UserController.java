@@ -28,27 +28,27 @@ public class UserController implements UserApiSpec {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserRequest request) {
         log.info("Получен запрос на создание пользователя: {}", request.getEmail());
-        return ResponseEntity.ok(userService.create(request));
+        return ResponseEntity.ok(userService.createUser(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable UUID id) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
         log.info("Получен запрос на получение пользователя с ID: {}", id);
-        return ResponseEntity.ok(userService.getById(id));
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable UUID id, @Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable UUID id, @Valid @RequestBody CreateUserRequest request) {
         log.info("Получен запрос на обновление пользователя {} с данными: {}", id, request);
-        return ResponseEntity.ok(userService.update(id, request));
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         log.info("Получен запрос на удаление пользователя с ID: {}", id);
-        userService.delete(id);
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 }

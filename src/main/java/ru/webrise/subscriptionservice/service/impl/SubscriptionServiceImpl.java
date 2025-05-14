@@ -3,8 +3,11 @@ package ru.webrise.subscriptionservice.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.webrise.subscriptionservice.dto.CreateSubscriptionRequest;
 import ru.webrise.subscriptionservice.dto.SubscriptionDto;
+import ru.webrise.subscriptionservice.dto.TopSubscriptionDto;
+import ru.webrise.subscriptionservice.dto.projection.TopServiceProjection;
 import ru.webrise.subscriptionservice.exception.NotFoundException;
 import ru.webrise.subscriptionservice.mapper.SubscriptionMapper;
 import ru.webrise.subscriptionservice.model.Subscription;
@@ -14,8 +17,8 @@ import ru.webrise.subscriptionservice.repository.UserRepository;
 import ru.webrise.subscriptionservice.service.SubscriptionService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,6 +31,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionMapper subscriptionMapper;
 
     @Override
+    @Transactional
     public SubscriptionDto addSubscription(UUID userId, CreateSubscriptionRequest request) {
         log.debug("Добавление подписки '{}' для пользователя {}", request.getServiceName(), userId);
         User user = userRepository.findById(userId)
@@ -36,12 +40,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                     return new NotFoundException("Пользователь не найден: " + userId);
                 });
 
-        Subscription subscription = subscriptionMapper.toEntity(request);
+        Subscription subscription = subscriptionMapper.mapToSubscription(request);
         subscription.setUser(user);
 
         Subscription saved = subscriptionRepository.save(subscription);
         log.info("Подписка '{}' добавлена для пользователя {}", saved.getServiceName(), userId);
-        return subscriptionMapper.toDto(saved);
+        return subscriptionMapper.mapToSubscriptionDto(saved);
     }
 
     @Override
@@ -53,11 +57,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         return subscriptionRepository.findAllByUserId(userId).stream()
-                .map(subscriptionMapper::toDto)
+                .map(subscriptionMapper::mapToSubscriptionDto)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public void deleteSubscription(UUID userId, UUID subscriptionId) {
         log.debug("Попытка удалить подписку {} для пользователя {}", subscriptionId, userId);
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
@@ -76,20 +81,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public List<SubscriptionDto> getTopSubscriptions() {
+    public List<TopSubscriptionDto> getTopSubscriptions() {
         log.debug("Получение топ-3 самых популярных подписок");
-        return subscriptionRepository.findAll().stream()
-                .collect(Collectors.groupingBy(
-                        Subscription::getServiceName,
-                        Collectors.counting()
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .limit(3)
-                .map(entry -> SubscriptionDto.builder()
-                        .id(null)
-                        .serviceName(entry.getKey())
-                        .build())
-                .collect(Collectors.toList());
+
+        long totalCount = subscriptionRepository.count();
+        if (totalCount == 0) return List.of();
+
+        List<TopServiceProjection> topServices = subscriptionRepository.findTopThreeServices();
+
+        AtomicInteger position = new AtomicInteger(1);
+        return topServices.stream()
+                .map(projection -> subscriptionMapper.mapToTopSubscriptionDto(projection, position.getAndIncrement(), totalCount))
+                .toList();
     }
 }
