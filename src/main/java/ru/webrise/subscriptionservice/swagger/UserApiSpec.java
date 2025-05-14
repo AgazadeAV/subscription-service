@@ -22,6 +22,8 @@ public interface UserApiSpec {
                     content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "Ошибка валидации",
                     content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "Пользователь с таким email уже существует",
+                    content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера",
                     content = @Content(schema = @Schema(hidden = true)))
     })

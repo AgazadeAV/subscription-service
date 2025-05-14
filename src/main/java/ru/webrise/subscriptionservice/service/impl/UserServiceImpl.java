@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.webrise.subscriptionservice.dto.CreateUserRequest;
 import ru.webrise.subscriptionservice.dto.UserDto;
+import ru.webrise.subscriptionservice.exception.AlreadyRegisteredException;
 import ru.webrise.subscriptionservice.exception.NotFoundException;
 import ru.webrise.subscriptionservice.mapper.UserMapper;
 import ru.webrise.subscriptionservice.model.User;
@@ -26,6 +27,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(CreateUserRequest request) {
         log.debug("Создание пользователя с email: {}", request.getEmail());
+        if (userRepository.existsByEmail(request.getEmail())) {
+            log.warn("Пользователь с электронной почтой {} уже зарегистрирован", request.getEmail());
+            throw new AlreadyRegisteredException("Пользователь с электронной почтой " + request.getEmail() + " уже зарегистрирован");
+        }
         User user = userMapper.toEntity(request);
         User saved = userRepository.save(user);
         log.info("Пользователь создан с ID: {}", saved.getId());
