@@ -21,4 +21,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 LIMIT 3
             """, nativeQuery = true)
     List<TopServiceProjection> findTopThreeServices();
+
+    boolean existsByUserIdAndServiceName(UUID userId, String serviceName);
 }

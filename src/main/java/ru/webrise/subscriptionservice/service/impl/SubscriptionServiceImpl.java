@@ -9,6 +9,7 @@ import ru.webrise.subscriptionservice.dto.SubscriptionDto;
 import ru.webrise.subscriptionservice.dto.TopSubscriptionDto;
 import ru.webrise.subscriptionservice.dto.projection.TopServiceProjection;
 import ru.webrise.subscriptionservice.exception.NotFoundException;
+import ru.webrise.subscriptionservice.exception.SubscriptionAlreadyExistsException;
 import ru.webrise.subscriptionservice.mapper.SubscriptionMapper;
 import ru.webrise.subscriptionservice.model.Subscription;
 import ru.webrise.subscriptionservice.model.User;
@@ -34,11 +35,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Transactional
     public SubscriptionDto addSubscription(UUID userId, CreateSubscriptionRequest request) {
         log.debug("Добавление подписки '{}' для пользователя {}", request.getServiceName(), userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Пользователь не найден при добавлении подписки: {}", userId);
                     return new NotFoundException("Пользователь не найден: " + userId);
                 });
+
+        if (subscriptionRepository.existsByUserIdAndServiceName(userId, request.getServiceName())) {
+            log.warn("Подписка '{}' уже существует у пользователя {}", request.getServiceName(), userId);
+            throw new SubscriptionAlreadyExistsException("Подписка уже существует: " + request.getServiceName());
+        }
 
         Subscription subscription = subscriptionMapper.mapToSubscription(request);
         subscription.setUser(user);

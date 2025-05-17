@@ -30,6 +30,14 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
     }
 
+    @ExceptionHandler(SubscriptionAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleSubscriptionAlreadyExistsException(SubscriptionAlreadyExistsException ex) {
+        log.warn("Подписка уже существует: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
